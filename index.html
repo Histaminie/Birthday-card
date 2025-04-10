@@ -9,7 +9,7 @@
     body {
       margin: 0;
       font-family: 'Press Start 2P', cursive;
-      background: url('https://images.alphacoders.com/601/thumb-1920-601547.jpg') center center / cover no-repeat;
+      background: url('https://monsterspost.com/wp-content/uploads/2020/05/desktop-minecraft-wallpaper-5.jpg') center center / cover no-repeat;
       color: white;
       overflow-x: hidden;
     }
@@ -44,7 +44,7 @@
     canvas {
       background-color: #222;
       display: block;
-      margin: auto;
+      margin: 1rem auto 0 auto;
     }
     #chest-message {
       display: none;
@@ -59,16 +59,23 @@
     }
     #score {
       font-size: 0.9rem;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
       background: #333;
       padding: 0.5rem 1rem;
       border: 2px solid #fff;
+      color: #0f0;
     }
   </style>
 </head>
 <body>
-  <audio autoplay loop>
+  <audio id="bg-music" loop>
     <source src="https://vgmsite.com/soundtracks/minecraft-volume-beta/wlbwoxwv/01%20Ki.mp3" type="audio/mp3">
+  </audio>
+  <audio id="collision-sound">
+    <source src="https://sounds-mp3.com/mp3/0003099.mp3" type="audio/mp3">
+  </audio>
+  <audio id="victory-sound">
+    <source src="https://sounds-mp3.com/mp3/0003083.mp3" type="audio/mp3">
   </audio>
 
   <div class="section" id="greeting">
@@ -79,8 +86,8 @@
 
   <div class="section" id="game" style="display:none; flex-direction: column;">
     <h2>Avoid the Creeper!</h2>
-    <canvas id="gameCanvas" width="300" height="400"></canvas>
     <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="300" height="400"></canvas>
     <div id="chest-message">🎉 You did it! Here's your surprise: [Your Prize Message or Link]</div>
   </div>
 
@@ -91,12 +98,17 @@
     const scoreDisplay = document.getElementById('score');
     const chestMessage = document.getElementById('chest-message');
 
+    const bgMusic = document.getElementById('bg-music');
+    const collisionSound = document.getElementById('collision-sound');
+    const victorySound = document.getElementById('victory-sound');
+
     const creeperImg = new Image();
-    creeperImg.src = 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/1/1c/Creeper_JE3_BE3.png';
+    creeperImg.src = 'https://minecraftfaces.com/wp-content/bigfaces/big-creeper-face.png';
     const steveImg = new Image();
-    steveImg.src = 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/0/08/Steve.png';
+    steveImg.src = 'https://www.models-resource.com/resources/big_icons/63/62095.png?updated=1679018508';
 
     startBtn.onclick = () => {
+      bgMusic.play(); // Start music only after user interaction
       greetingSection.style.display = 'none';
       gameSection.style.display = 'flex';
       startGame();
@@ -136,11 +148,19 @@
           creepers.push({
             x: Math.random() * (canvas.width - 30),
             y: 0,
-            size: 30
+            size: 30,
+            counted: false
           });
         }
-        creepers.forEach((c) => (c.y += 4));
-        creepers = creepers.filter((c) => c.y < canvas.height);
+        creepers.forEach((c) => {
+          c.y += 4;
+          if (!c.counted && c.y > canvas.height) {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            c.counted = true;
+          }
+        });
+        creepers = creepers.filter((c) => c.y < canvas.height + 30);
       }
 
       function detectCollision() {
@@ -151,6 +171,7 @@
             player.y < c.y + c.size &&
             player.y + player.height > c.y
           ) {
+            collisionSound.play();
             gameOver = true;
           }
         }
@@ -169,12 +190,8 @@
         detectCollision();
         frame++;
 
-        if (frame % 10 === 0) {
-          score++;
-          scoreDisplay.textContent = `Score: ${score}`;
-        }
-
         if (score >= 23) {
+          victorySound.play();
           gameOver = true;
           chestMessage.textContent = '🎉 You did it! Here\'s your surprise: [Your Prize Message or Link]';
           chestMessage.style.display = "block";
