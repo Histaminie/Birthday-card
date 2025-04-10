@@ -14,7 +14,7 @@
       overflow-x: hidden;
     }
     .section {
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -65,6 +65,20 @@
       border: 2px solid #fff;
       color: #0f0;
     }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .control-btn {
+      background-color: #8bc34a;
+      border: 3px solid #000;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 3px 3px #222;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +102,10 @@
     <h2>Avoid the Creeper!</h2>
     <div id="score">Score: 0</div>
     <canvas id="gameCanvas" width="300" height="400"></canvas>
+    <div class="controls">
+      <button class="control-btn" id="left-btn">←</button>
+      <button class="control-btn" id="right-btn">→</button>
+    </div>
     <div id="chest-message">🎉 You did it! Here's your surprise: [Your Prize Message or Link]</div>
   </div>
 
@@ -97,6 +115,8 @@
     const gameSection = document.getElementById('game');
     const scoreDisplay = document.getElementById('score');
     const chestMessage = document.getElementById('chest-message');
+    const leftBtn = document.getElementById('left-btn');
+    const rightBtn = document.getElementById('right-btn');
 
     const bgMusic = document.getElementById('bg-music');
     const collisionSound = document.getElementById('collision-sound');
@@ -107,8 +127,10 @@
     const steveImg = new Image();
     steveImg.src = 'https://www.models-resource.com/resources/big_icons/63/62095.png?updated=1679018508';
 
+    let player = { x: 130, y: 350, width: 40, height: 40 };
+
     startBtn.onclick = () => {
-      bgMusic.play(); // Start music only after user interaction
+      bgMusic.play().catch(() => {}); // Ensure sound plays after user interaction
       greetingSection.style.display = 'none';
       gameSection.style.display = 'flex';
       startGame();
@@ -118,10 +140,19 @@
       location.reload();
     });
 
+    leftBtn.addEventListener('click', () => {
+      player.x -= 20;
+      player.x = Math.max(0, player.x);
+    });
+
+    rightBtn.addEventListener('click', () => {
+      player.x += 20;
+      player.x = Math.min(300 - player.width, player.x);
+    });
+
     function startGame() {
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
-      let player = { x: 130, y: 350, width: 40, height: 40 };
       let creepers = [];
       let frame = 0;
       let gameOver = false;
@@ -171,7 +202,7 @@
             player.y < c.y + c.size &&
             player.y + player.height > c.y
           ) {
-            collisionSound.play();
+            collisionSound.play().catch(() => {});
             gameOver = true;
           }
         }
@@ -191,7 +222,7 @@
         frame++;
 
         if (score >= 23) {
-          victorySound.play();
+          victorySound.play().catch(() => {});
           gameOver = true;
           chestMessage.textContent = '🎉 You did it! Here\'s your surprise: [Your Prize Message or Link]';
           chestMessage.style.display = "block";
