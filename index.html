@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday, My Love</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to top left, #ffe6e6, #fffaf0);
+      font-family: 'Open Sans', sans-serif;
+      text-align: center;
+      color: #5a2a27;
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.5em;
+      margin-top: 1.5em;
+    }
+
+    .photo {
+      margin: 2em auto;
+      width: 70vw;
+      max-width: 250px;
+      height: 70vw;
+      max-height: 250px;
+      background-color: #fdd;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    button {
+      margin-top: 2em;
+      padding: 0.7em 1.5em;
+      font-size: 1em;
+      border: none;
+      background-color: #ff7f7f;
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e06666;
+    }
+
+    .message {
+      max-width: 90vw;
+      margin: 2em auto;
+      font-size: 1.1em;
+      line-height: 1.8em;
+      display: none;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      margin-top: 4em;
+      font-size: 0.9em;
+      color: #a08a89;
+    }
+  </style>
+</head>
+<body>
+  <h1>Happy Birthday, My Love</h1>
+
+  <div class="photo" style="background-image: url('your-photo-url.jpg');"></div>
+
+  <button onclick="showMessage()">Click to reveal your birthday surprise</button>
+
+  <div class="message" id="birthdayMessage">
+    <p>My dearest love,</p>
+    <p>
+      On this special day, I just want to remind you how deeply loved and cherished you are.
+      Your smile lights up my world, and every moment with you feels like a dream come true.
+      Here's to you, to us, and to all the beautiful memories we are yet to create.
+    </p>
+    <p>Happy Birthday, my forever person.</p>
+    <p>Love,<br />Ajay</p>
+  </div>
+
+  <footer>
+    Made with love by Ajay
+  </footer>
+
+  <script>
+    function showMessage() {
+      const msg = document.getElementById('birthdayMessage');
+      msg.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
