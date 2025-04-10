@@ -6,6 +6,9 @@
   <title>Happy Birthday, My Love</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans&display=swap" rel="stylesheet">
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -15,10 +18,40 @@
       color: #5a2a27;
     }
 
-    h1 {
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #fff0f0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 0.5em;
+      z-index: 1000;
+    }
+
+    nav a {
+      margin: 0 1em;
+      color: #d44c4c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    h1, h2 {
       font-family: 'Great Vibes', cursive;
       font-size: 2.5em;
-      margin-top: 1.5em;
+      margin-top: 2.5em;
+    }
+
+    section {
+      padding: 4em 1em 3em;
+    }
+
+    .timer {
+      font-size: 1.5em;
+      margin-top: 1em;
     }
 
     .photo {
@@ -72,32 +105,74 @@
   </style>
 </head>
 <body>
-  <h1>Happy Birthday, My Love</h1>
+  <nav>
+    <a href="#countdown">Countdown</a>
+    <a href="#photo">Photo</a>
+    <a href="#message-section">Message</a>
+  </nav>
 
-  <div class="photo" style="background-image: url('your-photo-url.jpg');"></div>
+  <section id="countdown">
+    <h1>Counting down to your special day 💖</h1>
+    <div class="timer" id="timer">Loading timer...</div>
+  </section>
 
-  <button onclick="showMessage()">Click to reveal your birthday surprise</button>
+  <section id="photo">
+    <h2>Just Us</h2>
+    <div class="photo" style="background-image: url('your-photo-url.jpg');"></div>
+  </section>
 
-  <div class="message" id="birthdayMessage">
-    <p>My dearest love,</p>
-    <p>
-      On this special day, I just want to remind you how deeply loved and cherished you are.
-      Your smile lights up my world, and every moment with you feels like a dream come true.
-      Here's to you, to us, and to all the beautiful memories we are yet to create.
-    </p>
-    <p>Happy Birthday, my forever person.</p>
-    <p>Love,<br />Ajay</p>
-  </div>
+  <section id="message-section">
+    <button onclick="showMessage()">Click to reveal your birthday surprise</button>
+    <div class="message" id="birthdayMessage">
+      <p>My dearest love,</p>
+      <p>
+        On this special day, I just want to remind you how deeply loved and cherished you are.
+        Your smile lights up my world, and every moment with you feels like a dream come true.
+        Here's to you, to us, and to all the beautiful memories we are yet to create.
+      </p>
+      <p>Happy Birthday, my forever person.</p>
+      <p>Love,<br />Ajay</p>
+    </div>
+  </section>
 
   <footer>
     Made with love by Ajay
   </footer>
+
+  <audio autoplay loop>
+    <source src="your-music-file.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
   <script>
     function showMessage() {
       const msg = document.getElementById('birthdayMessage');
       msg.style.display = 'block';
     }
+
+    // Countdown Timer
+    const targetDate = new Date("April 24, 2025 00:00:00").getTime();
+    const timerElement = document.getElementById("timer");
+
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        timerElement.innerHTML = "🎉 It's your special day! 🎉";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      timerElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    };
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
   </script>
 </body>
 </html>
