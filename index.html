@@ -3,219 +3,189 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Happy Birthday, My Love</title>
+  <title>Happy Birthday!</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
     body {
       margin: 0;
-      padding: 0;
-      background-color: #5d734b;
       font-family: 'Press Start 2P', cursive;
-      color: #fff;
-      display: flex;
+      background: url('https://images.alphacoders.com/601/thumb-1920-601547.jpg') center center / cover no-repeat;
+      color: white;
+      overflow-x: hidden;
     }
-
-    nav {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 200px;
+    .section {
       height: 100vh;
-      background-color: #2f4f2f;
-      padding: 1em;
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-      z-index: 1000;
-    }
-
-    nav a {
-      margin: 1em 0;
-      color: #c9e4c5;
-      text-decoration: none;
-      font-weight: bold;
+      justify-content: center;
       text-align: center;
+      padding: 2rem;
+      backdrop-filter: brightness(0.9);
     }
-
-    nav a:hover {
-      color: #ffcc00;
+    #greeting h1 {
+      font-size: 1.5rem;
+      background: #4caf50;
+      padding: 1rem;
+      border: 4px solid #000;
+      box-shadow: 5px 5px #222;
     }
-
-    main {
-      margin-left: 200px;
-      width: calc(100% - 200px);
-    }
-
-    section {
-      display: none;
-      padding: 3em 2em;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
-
-    section.active {
-      display: block;
-    }
-
-    h1, h2 {
-      font-size: 1.5em;
-    }
-
-    .timer {
-      font-size: 1em;
-      margin-top: 1em;
-    }
-
-    .photo {
-      margin: 2em auto;
-      width: 200px;
-      height: 200px;
-      background-color: #333;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    button {
-      margin-top: 2em;
-      padding: 0.7em 1.5em;
-      font-size: 1em;
+    #start-btn {
+      margin-top: 2rem;
+      background-color: #8bc34a;
+      color: black;
+      padding: 1rem 2rem;
       border: none;
-      background-color: #6bb76b;
-      color: white;
-      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 4px solid #000;
+      box-shadow: 4px 4px #222;
+    }
+    canvas {
+      background-color: #222;
+      display: block;
+      margin: auto;
+    }
+    #chest-message {
+      display: none;
+      margin-top: 2rem;
+      font-size: 1rem;
+      background: #ffeb3b;
+      color: black;
+      padding: 1rem;
+      border: 4px solid #000;
+      box-shadow: 5px 5px #222;
       cursor: pointer;
     }
-
-    button:hover {
-      background-color: #558d55;
-    }
-
-    .message {
-      max-width: 90vw;
-      margin: 2em auto;
-      font-size: 0.8em;
-      line-height: 1.6em;
-      display: none;
-      animation: fadeIn 2s ease-in-out forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    footer {
-      padding: 1em;
-      font-size: 0.6em;
-      color: #ccc;
-      text-align: center;
-    }
-
-    .image-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1em;
-      justify-content: center;
-    }
-
-    .image-grid img {
-      width: 150px;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    #score {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      background: #333;
+      padding: 0.5rem 1rem;
+      border: 2px solid #fff;
     }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="#" onclick="navigateTo('countdown')">Countdown</a>
-    <a href="#" onclick="navigateTo('photo')">Photo</a>
-    <a href="#" onclick="navigateTo('gallery')">Gallery</a>
-    <a href="#" onclick="navigateTo('message-section')">Message</a>
-  </nav>
+  <audio autoplay loop>
+    <source src="https://vgmsite.com/soundtracks/minecraft-volume-beta/wlbwoxwv/01%20Ki.mp3" type="audio/mp3">
+  </audio>
 
-  <main>
-    <section id="countdown" class="active">
-      <h1>Counting down to your special day 💖</h1>
-      <div class="timer" id="timer">Loading timer...</div>
-    </section>
+  <div class="section" id="greeting">
+    <h1>Happy Birthday, [Her Name]!</h1>
+    <p>You are the diamond in my Minecraft world 💎<br>[Your Sweet Message]</p>
+    <button id="start-btn">Start the Adventure</button>
+  </div>
 
-    <section id="photo">
-      <h2>Just Us</h2>
-      <div class="photo" style="background-image: url('your-photo-url.jpg');"></div>
-    </section>
-
-    <section id="gallery">
-      <h2>Memories Together</h2>
-      <div class="image-grid">
-        <img src="gallery/image1.jpg" alt="Memory 1">
-        <img src="gallery/image2.jpg" alt="Memory 2">
-        <img src="gallery/image3.jpg" alt="Memory 3">
-        <img src="gallery/image4.jpg" alt="Memory 4">
-        <img src="gallery/image5.jpg" alt="Memory 5">
-        <img src="gallery/image6.jpg" alt="Memory 6">
-      </div>
-    </section>
-
-    <section id="message-section">
-      <button onclick="showMessage()">Click to reveal your birthday surprise</button>
-      <div class="message" id="birthdayMessage">
-        <p>My dearest love,</p>
-        <p>
-          On this special day, I just want to remind you how deeply loved and cherished you are.
-          Your smile lights up my world, and every moment with you feels like a dream come true.
-          Here's to you, to us, and to all the beautiful memories we are yet to create.
-        </p>
-        <p>Happy Birthday, my forever person.</p>
-        <p>Love,<br />Ajay</p>
-      </div>
-    </section>
-
-    <footer>
-      Made with love by Ajay
-    </footer>
-  </main>
+  <div class="section" id="game" style="display:none; flex-direction: column;">
+    <h2>Avoid the Creeper!</h2>
+    <canvas id="gameCanvas" width="300" height="400"></canvas>
+    <div id="score">Score: 0</div>
+    <div id="chest-message">🎉 You did it! Here's your surprise: [Your Prize Message or Link]</div>
+  </div>
 
   <script>
-    function navigateTo(sectionId) {
-      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-    }
+    const startBtn = document.getElementById('start-btn');
+    const greetingSection = document.getElementById('greeting');
+    const gameSection = document.getElementById('game');
+    const scoreDisplay = document.getElementById('score');
+    const chestMessage = document.getElementById('chest-message');
 
-    function showMessage() {
-      const msg = document.getElementById('birthdayMessage');
-      msg.style.display = 'block';
-    }
+    const creeperImg = new Image();
+    creeperImg.src = 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/1/1c/Creeper_JE3_BE3.png';
+    const steveImg = new Image();
+    steveImg.src = 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/0/08/Steve.png';
 
-    const targetDate = new Date("April 28, 2025 00:00:00").getTime();
-    const timerElement = document.getElementById("timer");
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance < 0) {
-        timerElement.innerHTML = "🎉 It's your special day! 🎉";
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      timerElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    startBtn.onclick = () => {
+      greetingSection.style.display = 'none';
+      gameSection.style.display = 'flex';
+      startGame();
     };
 
-    setInterval(updateTimer, 1000);
-    updateTimer();
+    chestMessage.addEventListener('click', () => {
+      location.reload();
+    });
+
+    function startGame() {
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      let player = { x: 130, y: 350, width: 40, height: 40 };
+      let creepers = [];
+      let frame = 0;
+      let gameOver = false;
+      let score = 0;
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") player.x -= 20;
+        if (e.key === "ArrowRight") player.x += 20;
+        player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+      });
+
+      function drawPlayer() {
+        ctx.drawImage(steveImg, player.x, player.y, player.width, player.height);
+      }
+
+      function drawCreepers() {
+        creepers.forEach((c) => {
+          ctx.drawImage(creeperImg, c.x, c.y, c.size, c.size);
+        });
+      }
+
+      function updateCreepers() {
+        if (frame % 50 === 0) {
+          creepers.push({
+            x: Math.random() * (canvas.width - 30),
+            y: 0,
+            size: 30
+          });
+        }
+        creepers.forEach((c) => (c.y += 4));
+        creepers = creepers.filter((c) => c.y < canvas.height);
+      }
+
+      function detectCollision() {
+        for (let c of creepers) {
+          if (
+            player.x < c.x + c.size &&
+            player.x + player.width > c.x &&
+            player.y < c.y + c.size &&
+            player.y + player.height > c.y
+          ) {
+            gameOver = true;
+          }
+        }
+      }
+
+      function gameLoop() {
+        if (gameOver) {
+          chestMessage.textContent = '💥 Creeper got you! Try again?';
+          chestMessage.style.display = "block";
+          return;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlayer();
+        drawCreepers();
+        updateCreepers();
+        detectCollision();
+        frame++;
+
+        if (frame % 10 === 0) {
+          score++;
+          scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        if (score >= 23) {
+          gameOver = true;
+          chestMessage.textContent = '🎉 You did it! Here\'s your surprise: [Your Prize Message or Link]';
+          chestMessage.style.display = "block";
+          return;
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      gameLoop();
+    }
   </script>
 </body>
 </html>
