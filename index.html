@@ -23,6 +23,10 @@
       padding: 2rem;
       backdrop-filter: brightness(0.9);
     }
+    /* Make game section container relative so that absolute elements inside are contained */
+    #game {
+      position: relative;
+    }
     #greeting h1 {
       font-size: 1.5rem;
       background: #4caf50;
@@ -41,10 +45,18 @@
       border: 4px solid #000;
       box-shadow: 4px 4px #222;
     }
-    canvas {
+    canvas#gameCanvas {
       background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg2.jpeg') center center / cover no-repeat;
       display: block;
       margin: 1rem auto 0 auto;
+    }
+    /* Confetti canvas is an overlay inside #game */
+    canvas#confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 10;
     }
     #chest-message {
       display: none;
@@ -59,11 +71,52 @@
     }
     #score {
       font-size: 0.9rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       background: #333;
       padding: 0.5rem 1rem;
       border: 2px solid #fff;
       color: #0f0;
+    }
+    /* Health bar (Dynamic Hearts) */
+    #health-bar {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 1rem;
+    }
+    #health-bar .heart {
+      width: 20px;             
+      height: auto;
+      image-rendering: pixelated;
+    }
+    /* XP Bar modifications for accurate Minecraft style */
+    #xp-bar-container {
+      width: 300px;               
+      height: 7px;                
+      background: repeating-linear-gradient(
+        90deg,
+        #272727,
+        #272727 1px,
+        #1d1d1d 1px,
+        #1d1d1d 2px
+      );
+      border: 2px solid #000;     
+      box-sizing: border-box;
+      margin: 1rem auto;
+      image-rendering: pixelated;
+    }
+    #xp-bar {
+      height: 100%;
+      width: 0%;
+      background: repeating-linear-gradient(
+        90deg,
+        #00b300,
+        #00b300 2px,
+        #009900 2px,
+        #009900 4px
+      );
+      transition: width 0.2s ease-out;
+      image-rendering: pixelated;
     }
     .controls {
       display: flex;
@@ -102,9 +155,21 @@
   </div>
 
   <div class="section" id="game" style="display:none; flex-direction: column;">
-    <h2>Avoid the Creeper!</h2>
+    <!-- Health Bar -->
+    <div id="health-bar">
+      <img src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/heart.png" class="heart" alt="heart">
+      <img src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/heart.png" class="heart" alt="heart">
+      <img src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/heart.png" class="heart" alt="heart">
+    </div>
     <div id="score">Score: 0</div>
+    <!-- XP Bar -->
+    <div id="xp-bar-container">
+      <div id="xp-bar"></div>
+    </div>
+    <!-- The main game canvas -->
     <canvas id="gameCanvas" width="300" height="400"></canvas>
+    <!-- Confetti canvas overlay (same size as gameCanvas) -->
+    <canvas id="confetti-canvas" width="300" height="400"></canvas>
     <div class="controls">
       <button class="control-btn" id="left-btn">←</button>
       <button class="control-btn" id="right-btn">→</button>
@@ -112,6 +177,7 @@
     <div id="chest-message">🎉 You did it! Here's your surprise: [Your Prize Message or Link]</div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
     const startBtn = document.getElementById('start-btn');
     const greetingSection = document.getElementById('greeting');
@@ -135,7 +201,6 @@
 
     let player = { x: 130, y: 350, width: 40, height: 40 };
     let imagesLoaded = 0;
-
     function checkImagesReady() {
       imagesLoaded++;
       if (imagesLoaded === 2) {
@@ -147,51 +212,67 @@
         };
       }
     }
-
     steveImg.onload = checkImagesReady;
     creeperImg.onload = checkImagesReady;
 
     chestMessage.addEventListener('click', () => {
       location.reload();
     });
-
     leftBtn.addEventListener('click', () => {
-      player.x -= 20;
-      player.x = Math.max(0, player.x);
+      player.x = Math.max(0, player.x - 20);
     });
-
     rightBtn.addEventListener('click', () => {
-      player.x += 20;
-      player.x = Math.min(300 - player.width, player.x);
+      player.x = Math.min(300 - player.width, player.x + 20);
     });
-
-    const handleKey = (e) => {
-      if (e.key === "ArrowLeft") player.x -= 20;
-      if (e.key === "ArrowRight") player.x += 20;
-      player.x = Math.max(0, Math.min(300 - player.width, player.x));
-    };
-    document.addEventListener("keydown", handleKey);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") player.x = Math.max(0, player.x - 20);
+      if (e.key === "ArrowRight") player.x = Math.min(300 - player.width, player.x + 20);
+    });
 
     function startGame() {
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
+      const confettiCanvas = document.getElementById("confetti-canvas");
+      // Create a confetti instance attached to our confined canvas:
+      const confinedConfetti = confetti.create(confettiCanvas, {
+         resize: true,
+         useWorker: true,
+      });
+      
       let creepers = [];
       let frame = 0;
       let gameOver = false;
       let score = 0;
+      let health = 3;           // 3 hearts
+      let invulnerable = false; // temporary damage cooldown
+
+      // Particle trail data:
+      let particles = [];
+      let prevX = player.x, prevY = player.y;
+
+      function updateHealthDisplay() {
+        const healthBar = document.getElementById("health-bar");
+        healthBar.innerHTML = "";
+        for (let i = 0; i < health; i++) {
+          const heart = document.createElement("img");
+          heart.src = "https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/heart.png";
+          heart.className = "heart";
+          heart.alt = "heart";
+          healthBar.appendChild(heart);
+        }
+      }
+      updateHealthDisplay();
 
       function drawPlayer() {
-        if (steveImg.complete && steveImg.naturalWidth !== 0) {
+        if (steveImg.complete && steveImg.naturalWidth) {
           ctx.drawImage(steveImg, player.x, player.y, player.width, player.height);
         }
       }
-
       function drawCreepers() {
-        creepers.forEach((c) => {
+        creepers.forEach(c => {
           ctx.drawImage(creeperImg, c.x, c.y, c.size, c.size);
         });
       }
-
       function updateCreepers() {
         if (frame % 50 === 0) {
           creepers.push({
@@ -201,18 +282,20 @@
             counted: false
           });
         }
-        creepers.forEach((c) => {
+        creepers.forEach(c => {
           c.y += 4;
           if (!c.counted && c.y > canvas.height) {
             score++;
             scoreDisplay.textContent = `Score: ${score}`;
+            const xpBar = document.getElementById("xp-bar");
+            xpBar.style.width = Math.min((score / 23) * 100, 100) + "%";
             c.counted = true;
             pointSound.play().catch(() => {});
           }
         });
-        creepers = creepers.filter((c) => c.y < canvas.height + 30);
+        creepers = creepers.filter(c => c.y < canvas.height + 30);
       }
-
+      // Collision: lose one heart (with invulnerability) rather than immediate game over.
       function detectCollision() {
         for (let c of creepers) {
           if (
@@ -221,19 +304,77 @@
             player.y < c.y + c.size &&
             player.y + player.height > c.y
           ) {
-            collisionSound.play().catch(() => {});
-            gameOver = true;
+            if (!invulnerable) {
+              health--;
+              updateHealthDisplay();
+              collisionSound.play().catch(() => {});
+              c.counted = true;
+              if (health <= 0) {
+                gameOver = true;
+                return;
+              }
+              invulnerable = true;
+              setTimeout(() => { invulnerable = false; }, 1000);
+            }
           }
         }
       }
-
+      // Animated particle trail on movement:
+      function updateParticles() {
+        if (player.x !== prevX || player.y !== prevY) {
+          particles.push({
+            x: player.x + player.width / 2,
+            y: player.y + player.height / 2,
+            radius: 3,
+            alpha: 1,
+            dx: (Math.random() - 0.5) * 2,
+            dy: (Math.random() - 0.5) * 2
+          });
+        }
+        for (let i = particles.length - 1; i >= 0; i--) {
+          let p = particles[i];
+          p.x += p.dx;
+          p.y += p.dy;
+          p.alpha -= 0.03;
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+      }
+      function drawParticles() {
+        particles.forEach(p => {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = "#ffff66";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      }
       function gameLoop() {
         if (gameOver) {
-          chestMessage.textContent = '💥 Creeper got you! Try again?';
+          // Clear particles (optional)
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // Use our confined confetti instance on victory so it stays within the game area.
+          confinedConfetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          chestMessage.textContent = (health <= 0)
+            ? '💥 You lost all your hearts! Try again?'
+            : '💥 Creeper got you! Try again?';
           chestMessage.style.display = "block";
           return;
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        updateParticles();
+        drawParticles();
+        // Update previous position
+        prevX = player.x;
+        prevY = player.y;
+        
         drawPlayer();
         drawCreepers();
         updateCreepers();
@@ -242,23 +383,20 @@
 
         if (score >= 23) {
           victorySound.play().catch(() => {});
-          confetti({
+          confinedConfetti({
             particleCount: 150,
             spread: 70,
-            origin: { y: 0.6 },
+            origin: { y: 0.6 }
           });
           gameOver = true;
           chestMessage.textContent = '🎉 You did it! Here\'s your surprise';
           chestMessage.style.display = "block";
           return;
         }
-
         requestAnimationFrame(gameLoop);
       }
-
       gameLoop();
     }
   </script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
