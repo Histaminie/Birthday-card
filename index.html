@@ -86,10 +86,13 @@
     <source src="https://vgmsite.com/soundtracks/minecraft-volume-beta/wlbwoxwv/01%20Ki.mp3" type="audio/mp3">
   </audio>
   <audio id="collision-sound">
-    <source src="https://github.com/Histaminie/Birthday-card/blob/main/audio/creeper-explosion-sound-effect-made-with-Voicemod.mp3" type="audio/mp3">
+    <source src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/audio/creeper-explosion-sound-effect-made-with-Voicemod.mp3" type="audio/mp3">
   </audio>
   <audio id="victory-sound">
-    <source src="https://github.com/Histaminie/Birthday-card/blob/main/audio/roblox-victory-sound-made-with-Voicemod.mp3" type="audio/mp3">
+    <source src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/audio/roblox-victory-sound-made-with-Voicemod.mp3" type="audio/mp3">
+  </audio>
+  <audio id="point-sound">
+    <source src="https://raw.githubusercontent.com/Histaminie/Birthday-card/main/audio/704134__entershift__beep-sound.mp3" type="audio/mp3">
   </audio>
 
   <div class="section" id="greeting">
@@ -121,6 +124,7 @@
     const bgMusic = document.getElementById('bg-music');
     const collisionSound = document.getElementById('collision-sound');
     const victorySound = document.getElementById('victory-sound');
+    const pointSound = document.getElementById('point-sound');
 
     const creeperImg = new Image();
     creeperImg.src = 'https://minecraftfaces.com/wp-content/bigfaces/big-creeper-face.png';
@@ -130,7 +134,7 @@
     let player = { x: 130, y: 350, width: 40, height: 40 };
 
     startBtn.onclick = () => {
-      bgMusic.play().catch(() => {}); // Ensure sound plays after user interaction
+      bgMusic.play().catch(() => {});
       greetingSection.style.display = 'none';
       gameSection.style.display = 'flex';
       startGame();
@@ -189,6 +193,7 @@
             score++;
             scoreDisplay.textContent = `Score: ${score}`;
             c.counted = true;
+            pointSound.play().catch(() => {});
           }
         });
         creepers = creepers.filter((c) => c.y < canvas.height + 30);
