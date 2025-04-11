@@ -9,7 +9,7 @@
     body {
       margin: 0;
       font-family: 'Press Start 2P', cursive;
-      background: url('https://monsterspost.com/wp-content/uploads/2020/05/desktop-minecraft-wallpaper-5.jpg') center center / cover no-repeat;
+      background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg.jpeg') center center / cover no-repeat;
       color: white;
       overflow-x: hidden;
     }
@@ -42,7 +42,7 @@
       box-shadow: 4px 4px #222;
     }
     canvas {
-      background-color: #222;
+      background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg2.jpeg') center center / cover no-repeat;
       display: block;
       margin: 1rem auto 0 auto;
     }
@@ -96,8 +96,8 @@
   </audio>
 
   <div class="section" id="greeting">
-    <h1>Happy Birthday, [Her Name]!</h1>
-    <p>You are the diamond in my Minecraft world 💎<br>[Your Sweet Message]</p>
+    <h1>Happy Birthday, Somu!</h1>
+    <p>You are the diamond in my Minecraft world 💎<br>Let's have some fun!</p>
     <button id="start-btn">Start the Adventure</button>
   </div>
 
@@ -127,18 +127,29 @@
     const pointSound = document.getElementById('point-sound');
 
     const creeperImg = new Image();
+    creeperImg.onerror = () => console.error('Failed to load Creeper image.');
     creeperImg.src = 'https://minecraftfaces.com/wp-content/bigfaces/big-creeper-face.png';
     const steveImg = new Image();
-    steveImg.src = 'https://www.models-resource.com/resources/big_icons/63/62095.png?updated=1679018508';
+    steveImg.onerror = () => console.error('Failed to load Steve image.');
+    steveImg.src = 'https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/Charcater.png';
 
     let player = { x: 130, y: 350, width: 40, height: 40 };
+    let imagesLoaded = 0;
 
-    startBtn.onclick = () => {
-      bgMusic.play().catch(() => {});
-      greetingSection.style.display = 'none';
-      gameSection.style.display = 'flex';
-      startGame();
-    };
+    function checkImagesReady() {
+      imagesLoaded++;
+      if (imagesLoaded === 2) {
+        startBtn.onclick = () => {
+          bgMusic.play().catch(() => {});
+          greetingSection.style.display = 'none';
+          gameSection.style.display = 'flex';
+          startGame();
+        };
+      }
+    }
+
+    steveImg.onload = checkImagesReady;
+    creeperImg.onload = checkImagesReady;
 
     chestMessage.addEventListener('click', () => {
       location.reload();
@@ -154,6 +165,13 @@
       player.x = Math.min(300 - player.width, player.x);
     });
 
+    const handleKey = (e) => {
+      if (e.key === "ArrowLeft") player.x -= 20;
+      if (e.key === "ArrowRight") player.x += 20;
+      player.x = Math.max(0, Math.min(300 - player.width, player.x));
+    };
+    document.addEventListener("keydown", handleKey);
+
     function startGame() {
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
@@ -162,14 +180,10 @@
       let gameOver = false;
       let score = 0;
 
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") player.x -= 20;
-        if (e.key === "ArrowRight") player.x += 20;
-        player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-      });
-
       function drawPlayer() {
-        ctx.drawImage(steveImg, player.x, player.y, player.width, player.height);
+        if (steveImg.complete && steveImg.naturalWidth !== 0) {
+          ctx.drawImage(steveImg, player.x, player.y, player.width, player.height);
+        }
       }
 
       function drawCreepers() {
@@ -228,8 +242,13 @@
 
         if (score >= 23) {
           victorySound.play().catch(() => {});
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
           gameOver = true;
-          chestMessage.textContent = '🎉 You did it! Here\'s your surprise: [Your Prize Message or Link]';
+          chestMessage.textContent = '🎉 You did it! Here\'s your surprise';
           chestMessage.style.display = "block";
           return;
         }
@@ -240,5 +259,6 @@
       gameLoop();
     }
   </script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
