@@ -4,18 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Birthday!</title>
-  <!-- Load Minecraftia font -->
+  <!-- Load Official Minecraft Font -->
   <style>
     @font-face {
-      font-family: 'Minecraftia';
-      src: url('https://cdn.jsdelivr.net/npm/typeface-minecraftia@1.0.1/fonts/minecraftia-regular.woff2') format('woff2'),
-           url('https://cdn.jsdelivr.net/npm/typeface-minecraftia@1.0.1/fonts/minecraftia-regular.woff') format('woff');
+      font-family: 'Minecraft';
+      src: url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff') format('woff');
       font-weight: normal;
       font-style: normal;
-      font-display: swap;
     }
     * {
-      font-family: 'Minecraftia', monospace;
+      font-family: 'Minecraft', monospace;
+      image-rendering: pixelated;
     }
     body {
       margin: 0;
@@ -89,6 +89,27 @@
       width: 80px;
       image-rendering: pixelated;
     }
+    /* Minecraft style buttons */
+    .minecraft-btn {
+      background-color: #8bc34a;
+      color: black;
+      padding: 0.7rem 1.5rem;
+      border: 2px solid #000;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 3px 3px #333;
+      margin: 0.5rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .minecraft-btn:hover {
+      background-color: #a4d967;
+      transform: translateY(-2px);
+    }
+    .minecraft-btn:active {
+      transform: translateY(1px);
+      box-shadow: 1px 1px #333;
+    }
     /* Health Bar (Dynamic Hearts) */
     #health-bar {
       display: flex;
@@ -139,6 +160,20 @@
       font-size: 1rem;
       cursor: pointer;
       box-shadow: 3px 3px #222;
+    }
+    /* Treasure Button */
+    #treasure-btn {
+      background-color: #f9a825;
+      margin-top: 1rem;
+    }
+    #treasure-btn:hover {
+      background-color: #ffb74d;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -199,6 +234,7 @@
       const goldenAppleImgSrc = "https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/golden_apple.png";
       const tntImgSrc         = "https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/tnt.png";
       const heartImgSrc       = "https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/heart.png";
+      const diamondImgSrc     = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/c8/Diamond_JE3_BE3.png";
 
       // Create image objects.
       const steveImg = new Image();  
@@ -222,8 +258,11 @@
       const heartImg = new Image();  
       heartImg.src = heartImgSrc;
       
+      const diamondImg = new Image();
+      diamondImg.src = diamondImgSrc;
+      
       // Preload assets.
-      const imagesToLoad = [steveImg, creeperImg, goldenAppleImg, tntImg, chestClosedImg, chestOpenImg, heartImg];
+      const imagesToLoad = [steveImg, creeperImg, goldenAppleImg, tntImg, chestClosedImg, chestOpenImg, heartImg, diamondImg];
       let loadCount = 0;
       const startBtn = document.getElementById('start-btn');
       startBtn.disabled = true;
@@ -248,6 +287,10 @@
       const victorySound = document.getElementById('victory-sound');
       const pointSound = document.getElementById('point-sound');
       const chestOpenSound = document.getElementById('chest-open-sound');
+      
+      // Configure placeholder URL for treasure button
+      // Replace this with the actual URL you want to use
+      const treasureURL = "https://example.com/birthday-surprise";
       
       // Confetti Canvas Setup
       const confettiCanvas = document.getElementById('confetti-canvas');
@@ -300,8 +343,13 @@
         }
       }
       
-      // Restart game on chest message click.
-      chestMessage.addEventListener('click', () => { window.location.reload(); });
+      // Restart game on game over chest message click
+      chestMessage.addEventListener('click', (e) => { 
+        // Only reload if clicking directly on the chest message and not on buttons
+        if (e.target === chestMessage || e.target.id === "chest-animation") {
+          window.location.reload(); 
+        }
+      });
       
       // Player control listeners.
       let player = { x: 130, y: 350, width: 40, height: 40 };
@@ -467,7 +515,9 @@
             ctx.restore();
           });
         }
-        function showChestAnimation(isVictory) {
+        
+        function showVictoryScreen() {
+          // First show chest closed
           chestMessage.innerHTML = "";
           const chestImg = document.createElement("img");
           chestImg.id = "chest-animation";
@@ -475,27 +525,68 @@
           chestMessage.appendChild(chestImg);
           chestMessage.style.display = "block";
           
+          // Then open the chest after a delay
           setTimeout(() => { 
-            chestImg.src = isVictory ? chestOpenImgSrc : chestClosedImgSrc; 
-            if (isVictory) {
-              chestOpenSound.play().catch(() => {});
-            }
-          }, 500);
+            chestImg.src = chestOpenImgSrc; 
+            chestOpenSound.play().catch(() => {});
+          }, 800);
           
+          // Add victory message
           setTimeout(() => {
             const resultText = document.createElement("div");
             resultText.style.marginTop = "10px";
-            resultText.textContent = isVictory ? 
-              "You did it! Here's your surprise!" : 
-              "Game Over! You lost all your hearts. Click here to try again!";
+            resultText.textContent = "Here is your treasure!";
             chestMessage.appendChild(resultText);
-          }, 1000);
+            
+            // Add buttons container
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "button-container";
+            
+            // Add treasure button with link
+            const treasureBtn = document.createElement("a");
+            treasureBtn.href = treasureURL;
+            treasureBtn.className = "minecraft-btn";
+            treasureBtn.id = "treasure-btn";
+            treasureBtn.textContent = "Open Treasure";
+            treasureBtn.target = "_blank"; // Open in new tab
+            buttonContainer.appendChild(treasureBtn);
+            
+            // Add play again button
+            const playAgainBtn = document.createElement("button");
+            playAgainBtn.className = "minecraft-btn";
+            playAgainBtn.textContent = "Play Again";
+            playAgainBtn.addEventListener('click', () => { window.location.reload(); });
+            buttonContainer.appendChild(playAgainBtn);
+            
+            chestMessage.appendChild(buttonContainer);
+          }, 1200);
+        }
+        
+        function showGameOverScreen() {
+          chestMessage.innerHTML = "";
+          const resultText = document.createElement("div");
+          resultText.textContent = "Game Over! You lost all your hearts.";
+          chestMessage.appendChild(resultText);
+          
+          // Add play again button
+          const playAgainBtn = document.createElement("button");
+          playAgainBtn.className = "minecraft-btn";
+          playAgainBtn.textContent = "Try Again";
+          playAgainBtn.addEventListener('click', () => { window.location.reload(); });
+          chestMessage.appendChild(playAgainBtn);
+          
+          chestMessage.style.display = "block";
         }
         
         function gameLoop() {
           if (gameOver) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            showChestAnimation(winCondition);
+            
+            if (winCondition) {
+              showVictoryScreen();
+            } else {
+              showGameOverScreen();
+            }
             return;
           }
           
