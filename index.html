@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Birthday!</title>
-  <!-- Load Official Minecraft Font -->
+  <!-- Updated Minecraft Font Loading -->
   <style>
     @font-face {
       font-family: 'Minecraft';
@@ -12,11 +12,29 @@
            url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff') format('woff');
       font-weight: normal;
       font-style: normal;
+      font-display: swap; /* This helps prevent FOIT (Flash of Invisible Text) */
     }
+    
+    /* Preload the font to ensure it loads before being used */
+    body::before {
+      content: "";
+      font-family: 'Minecraft';
+      visibility: hidden;
+      position: absolute;
+      left: -9999px;
+    }
+    
+    /* Apply font with fallbacks */
     * {
-      font-family: 'Minecraft', monospace;
+      font-family: 'Minecraft', 'Courier New', monospace;
       image-rendering: pixelated;
     }
+    
+    /* Font size adjustments for better visibility even if custom font fails */
+    h1, button, .minecraft-btn {
+      letter-spacing: 1px; /* Improve readability */
+    }
+    
     body {
       margin: 0;
       background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg.jpeg') center center / cover no-repeat;
@@ -56,7 +74,7 @@
       box-shadow: 4px 4px #222;
     }
     canvas#gameCanvas {
-      background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg2.jpeg') center center / cover no-repeat;
+      background: url('https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/bg2.jpeg') center center / cover no-repeat;
       display: block;
       margin: 1rem auto 0 auto;
     }
@@ -371,6 +389,7 @@
         let gameOver = false;
         let score = 0;
         let health = 3;
+        let maxHealth = 5; // Set maximum hearts to 5
         let invulnerable = false;
         let winCondition = false;
       
@@ -464,7 +483,8 @@
               player.y + player.height > p.y
             ) {
               if (p.type === "golden") {
-                health += 2;
+                // Apply limit of 5 maximum hearts
+                health = Math.min(health + 2, maxHealth);
                 updateHealthDisplay();
               }
               powerUps.splice(i, 1);
