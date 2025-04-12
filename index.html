@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Birthday!</title>
-  <!-- Enhanced Pixelated Font Loading -->
+  <!-- Updated Minecraft Font Loading -->
   <style>
     @font-face {
       font-family: 'Minecraft';
@@ -12,30 +12,27 @@
            url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff') format('woff');
       font-weight: normal;
       font-style: normal;
-      font-display: swap;
+      font-display: swap; /* This helps prevent FOIT (Flash of Invisible Text) */
     }
     
-    /* Pixelation for all elements */
+    /* Preload the font to ensure it loads before being used */
+    body::before {
+      content: "";
+      font-family: 'Minecraft';
+      visibility: hidden;
+      position: absolute;
+      left: -9999px;
+    }
+    
+    /* Apply font with fallbacks */
     * {
-      font-family: 'Minecraft', 'VT323', 'Press Start 2P', monospace;
+      font-family: 'Minecraft', 'Courier New', monospace;
       image-rendering: pixelated;
-      -webkit-font-smoothing: none;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: geometricPrecision;
     }
     
-    /* Enhanced pixelated text effect */
-    h1, h2, p, button, .minecraft-btn, div {
-      letter-spacing: 1px;
-      line-height: 1.4;
-      text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
-    }
-    
-    /* Extra pixelation for headings */
-    h1 {
-      transform: scale(1, 1);
-      image-rendering: crisp-edges;
-      font-size: 1.8rem !important;
+    /* Font size adjustments for better visibility even if custom font fails */
+    h1, button, .minecraft-btn {
+      letter-spacing: 1px; /* Improve readability */
     }
     
     body {
@@ -43,7 +40,6 @@
       background: url('https://raw.githubusercontent.com/Histaminie/Birthday-mini-game/main/Pictures/bg.jpeg') center center / cover no-repeat;
       color: white;
       overflow-x: hidden;
-      image-rendering: pixelated;
     }
     .section {
       min-height: 100vh;
@@ -65,7 +61,6 @@
       padding: 1rem;
       border: 4px solid #000;
       box-shadow: 5px 5px #222;
-      image-rendering: pixelated;
     }
     #start-btn {
       margin-top: 2rem;
@@ -77,14 +72,11 @@
       cursor: pointer;
       border: 4px solid #000;
       box-shadow: 4px 4px #222;
-      image-rendering: pixelated;
     }
     canvas#gameCanvas {
       background: url('https://raw.githubusercontent.com/Histaminie/Birthday-card/main/Pictures/bg2.jpeg') center center / cover no-repeat;
       display: block;
       margin: 1rem auto 0 auto;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
     /* Confetti canvas for victory animation */
     #confetti-canvas {
@@ -95,7 +87,6 @@
       height: 100%;
       pointer-events: none;
       z-index: 5;
-      image-rendering: pixelated;
     }
     /* Chest Message for Victory/Game Over Animation */
     #chest-message {
@@ -109,7 +100,6 @@
       box-shadow: 5px 5px #222;
       cursor: pointer;
       z-index: 10;
-      image-rendering: pixelated;
     }
     #chest-message img {
       display: block;
@@ -129,7 +119,6 @@
       margin: 0.5rem;
       text-decoration: none;
       display: inline-block;
-      image-rendering: pixelated;
     }
     .minecraft-btn:hover {
       background-color: #a4d967;
@@ -158,7 +147,6 @@
       padding: 0.5rem 1rem;
       border: 2px solid #fff;
       color: #0f0;
-      image-rendering: pixelated;
     }
     /* XP Bar: Vanilla Minecraft Style */
     #xp-bar-container {
@@ -190,13 +178,11 @@
       font-size: 1rem;
       cursor: pointer;
       box-shadow: 3px 3px #222;
-      image-rendering: pixelated;
     }
     /* Treasure Button */
     #treasure-btn {
       background-color: #f9a825;
       margin-top: 1rem;
-      image-rendering: pixelated;
     }
     #treasure-btn:hover {
       background-color: #ffb74d;
@@ -206,23 +192,6 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-top: 1rem;
-    }
-    
-    /* Pixel-perfect rendering for all images */
-    img {
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-    }
-    
-    /* Enhance pixelated text for game UI */
-    #chest-message div, 
-    #score, 
-    #greeting p {
-      font-family: 'Minecraft', monospace;
-      letter-spacing: 1px;
-      line-height: 1.5;
-      image-rendering: pixelated;
     }
   </style>
 </head>
@@ -310,11 +279,6 @@
       const diamondImg = new Image();
       diamondImg.src = diamondImgSrc;
       
-      // Improve image pixelation
-      [steveImg, creeperImg, goldenAppleImg, tntImg, chestClosedImg, chestOpenImg, heartImg, diamondImg].forEach(img => {
-        img.style.imageRendering = 'pixelated';
-      });
-      
       // Preload assets.
       const imagesToLoad = [steveImg, creeperImg, goldenAppleImg, tntImg, chestClosedImg, chestOpenImg, heartImg, diamondImg];
       let loadCount = 0;
@@ -351,9 +315,6 @@
       const confettiCtx = confettiCanvas.getContext('2d');
       confettiCanvas.width = window.innerWidth;
       confettiCanvas.height = window.innerHeight;
-      
-      // Enable image smoothing for better pixelation
-      confettiCtx.imageSmoothingEnabled = false;
       
       // Confetti particles
       const confetti = [];
@@ -421,10 +382,6 @@
       function startGame() {
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        
-        // Disable image smoothing for pixelated rendering
-        ctx.imageSmoothingEnabled = false;
-        
         let creepers = [];
         let powerUps = [];
         let hazards = [];  // Only TNT hazards.
@@ -448,7 +405,6 @@
             heart.src = heartImg.src;
             heart.className = "heart";
             heart.alt = "heart";
-            heart.style.imageRendering = "pixelated";
             healthBar.appendChild(heart);
           }
         }
@@ -586,7 +542,6 @@
           const chestImg = document.createElement("img");
           chestImg.id = "chest-animation";
           chestImg.src = chestClosedImgSrc;
-          chestImg.style.imageRendering = "pixelated"; // Ensure pixelated rendering
           chestMessage.appendChild(chestImg);
           chestMessage.style.display = "block";
           
@@ -601,8 +556,6 @@
             const resultText = document.createElement("div");
             resultText.style.marginTop = "10px";
             resultText.textContent = "Here is your treasure!";
-            resultText.style.fontFamily = "'Minecraft', monospace";
-            resultText.style.letterSpacing = "1px";
             chestMessage.appendChild(resultText);
             
             // Add buttons container
@@ -632,4 +585,80 @@
         function showGameOverScreen() {
           chestMessage.innerHTML = "";
           const resultText = document.createElement("div");
-          resultText.textContent = "Game Over! You lost all your h
+          resultText.textContent = "Game Over! You lost all your hearts.";
+          chestMessage.appendChild(resultText);
+          
+          // Add play again button
+          const playAgainBtn = document.createElement("button");
+          playAgainBtn.className = "minecraft-btn";
+          playAgainBtn.textContent = "Try Again";
+          playAgainBtn.addEventListener('click', () => { window.location.reload(); });
+          chestMessage.appendChild(playAgainBtn);
+          
+          chestMessage.style.display = "block";
+        }
+        
+        function gameLoop() {
+          if (gameOver) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (winCondition) {
+              showVictoryScreen();
+            } else {
+              showGameOverScreen();
+            }
+            return;
+          }
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          updateParticles();
+          drawParticles();
+          prevX = player.x;
+          prevY = player.y;
+          
+          drawPlayer();
+          drawCreepers();
+          drawPowerUps();
+          drawHazards();
+          updateCreepers();
+          updatePowerUps();
+          updateHazards();
+          detectCollision();
+          
+          frame++;
+          
+          if (score >= 23 && !gameOver) {
+            winCondition = true;
+            victorySound.play().catch(() => {});
+            gameOver = true;
+            // Start confetti animation for victory
+            createConfetti();
+            drawConfetti();
+            return;
+          }
+          
+          requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+      }
+      
+      // Responsive canvas sizing
+      function resizeCanvas() {
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      }
+      
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      
+      startBtn.addEventListener('click', () => {
+        bgMusic.play().catch(() => {});
+        greetingSection.style.display = 'none';
+        gameSection.style.display = 'flex';
+        startGame();
+      });
+    })();
+  </script>
+</body>
+</html>
